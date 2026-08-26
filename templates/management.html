@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - AI模拟面试</title>
+    <style>
+        /* 全局基础样式（继承主页 p 标签风格） */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #555;
+            font-size: 1em;
+            line-height: 1.6;
+        }
+
+        /* 顶部标题栏 */
+        .header-title {
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            padding: 20px 0 10px 0;
+        }
+
+        /* 导航功能栏 */
+        .nav-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #555;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover {
+            color: #87CEFA;
+        }
+
+        .nav-item.active {
+            color: #87CEFA;
+            border-bottom: 3px solid #87CEFA;
+        }
+
+        /* 核心 Frame 容器 (电脑 60%，手机 100%) */
+        .frame-container {
+            width: 60%;
+            margin: 0 auto;
+            padding: 0 10px 40px 10px;
+            box-sizing: border-box;
+        }
+
+        /* 页面面板隐藏/显示控制 */
+        .panel {
+            display: none;
+        }
+        .panel.active {
+            display: block;
+        }
+
+        /* 全局通用按钮样式 */
+        .btn {
+            background-color: #87CEFA;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            box-sizing: border-box;
+        }
+        .btn:hover {
+            background-color: #5bbdf8;
+        }
+
+        /* ================= 【我的简历】页面样式 ================= */
+        .resume-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+        
+        .resume-info-box {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 0 15px;
+            height: 40px; /* 强制同高 */
+            box-sizing: border-box;
+            background-color: #fafafa;
+        }
+        .resume-info-box img {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px; /* 圆角正方形 */
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .resume-actions {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+        .resume-actions .btn {
+            height: 40px; /* 强制同高 */
+            padding: 0 20px;
+        }
+
+        /* 简历表格区（大矩形网格布局） */
+        .resume-form-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 25px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .resume-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 两列等宽 */
+            gap: 15px 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        /* 占据整行的组 */
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            color: #555;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .submit-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .submit-row .btn {
+            padding: 10px 30px;
+        }
+
+        /* ================= 【模拟面试记录】页面样式 ================= */
+        .records-top {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+        .records-top .btn {
+            padding: 10px 20px;
+        }
+        .record-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px 20px;
+            background-color: #fafafa;
+            transition: box-shadow 0.2s;
+        }
+        .record-item:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .record-info {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        .record-links {
+            display: flex;
+            gap: 20px;
+        }
+        .record-links a {
+            color: #87CEFA;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .record-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* ================= 【我的】页面样式 ================= */
+        .profile-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 30px;
+            background-color: #fff;
+            max-width: 500px;
+            margin: 0 auto; /* 居中 */
+        }
+        .profile-account {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #333;
+        }
+        .profile-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .profile-actions .btn {
+            padding: 10px 0;
+            width: 48%; /* 左右平分 */
+        }
+
+        /* ================= 移动端适配 (手机占满屏幕) ================= */
+        @media (max-width: 768px) {
+            body { font-size: 0.85em; }
+            .frame-container { width: 100%; padding: 0 15px 30px 15px; }
+            .resume-top-bar { flex-direction: column; align-items: stretch; }
+            .resume-actions { justify-content: space-between; }
+            .resume-grid { grid-template-columns: 1fr; /* 手机端单列排布 */ }
+            .form-group.full-width { grid-column: span 1; }
+            .record-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .record-info { flex-direction: column; gap: 5px; align-items: flex-start; }
+            .record-links { width: 100%; justify-content: flex-end; }
+        }
+        /* ================= 全屏加载遮罩层样式 ================= */
+.loading-overlay {
+    display: none; /* 默认隐藏 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.85); /* 半透明白色背景 */
+    z-index: 9999; /* 保证在页面最顶层 */
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* 激活时显示为 flex 布局 */
+.loading-overlay.active {
+    display: flex;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+/* 纯 CSS 画一个转圈圈的动画 */
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #87CEFA; /* 浅蓝色 */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 1.2em;
+    color: #555;
+    font-weight: bold;
+}
+    </style>
+</head>
+<body>
+
+    <div class="header-title">AI模拟面试</div>
+
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="switchTab('resume')">我的简历</div>
+        <div class="nav-item" onclick="switchTab('records')">模拟面试</div>
+        <div class="nav-item" onclick="switchTab('profile')">我的</div>
+    </div>
+
+    <div class="frame-container">
+
+        <div id="panel-resume" class="panel active">
+            <div class="resume-top-bar">
+                <div class="resume-info-box">
+                    <img src="{{url_for('static_file', file_name='pdf_img.jpg')}}" alt="avatar">
+                    <span>{{ resume_data[16] if resume_data else '' }}</span>
+                </div>
+                <div class="resume-actions">
+                    <button class="btn" onclick="triggerFileInput()">上传简历(你也可以手动填写)</button>
+                    <input type="file" id="resume-file-input" style="display: none;" accept=".pdf,.doc,.docx,.xlsx,.xls" onchange="handleFileUpload()">
+                </div>
+            </div>
+
+            <div class="resume-form-container">
+    <span>你需要填写简历才能进行面试</span>
+    <div class="resume-grid">
+        <div class="form-group"><label>姓名</label><input id="姓名" type="text" value="{{ resume_data[0] if resume_data else '' }}"></div>
+        
+        <div class="form-group"><label>性别</label><select id="性别">
+            <option value="男" {% if resume_data and resume_data[1] == True %}selected{% endif %}>男</option>
+            <option value="女" {% if resume_data and resume_data[1] == False %}selected{% endif %}>女</option>
+        </select></div>
+        
+        <div class="form-group"><label>联系电话</label><input type="text" id="联系电话" value="{{ resume_data[2] if resume_data else '' }}"></div>
+        <div class="form-group"><label>电子邮箱</label><input type="email" id="电子邮箱" value="{{ resume_data[3] if resume_data else '' }}"></div>
+        <div class="form-group"><label>毕业院校</label><input type="text" id="毕业院校" value="{{ resume_data[4] if resume_data else '' }}"></div>
+        <div class="form-group"><label>专业</label><input type="text" id="专业" value="{{ resume_data[5] if resume_data else '' }}"></div>
+        <div class="form-group"><label>学历</label><input type="text" id="学历" value="{{ resume_data[6] if resume_data else '' }}"></div>
+        <div class="form-group"><label>毕业年份</label><input type="number" id="毕业年份" value="{{ resume_data[7] if resume_data else '' }}"></div>
+        <div class="form-group"><label>意向岗位</label><input type="text" id="意向岗位" value="{{ resume_data[8] if resume_data else '' }}"></div>
+        <div class="form-group"><label>个人主页/Github</label><input type="text" id="个人主页" value="{{ resume_data[9] if resume_data else '' }}"></div>
+        
+        <div class="form-group full-width"><label>主修课程及成绩</label><textarea id="主修课程及成绩">{{ resume_data[10] if resume_data else '' }}</textarea></div>
+        <div class="form-group full-width"><label>掌握技能</label><textarea id="掌握技能">{{ resume_data[11] if resume_data else '' }}</textarea></div>
+        <div class="form-group full-width"><label>核心项目经历</label><textarea id="核心项目经历">{{ resume_data[12] if resume_data else '' }}</textarea></div>
+        <div class="form-group full-width"><label>自我评价</label><textarea id="自我评价">{{ resume_data[13] if resume_data else '' }}</textarea></div>
+        <div class="form-group full-width"><label>获奖荣誉</label><textarea id="获奖荣誉">{{ resume_data[14] if resume_data else '' }}</textarea></div>
+        <div class="form-group full-width"><label>其他</label><textarea id="其他">{{ resume_data[15] if resume_data else '' }}</textarea></div>
+    </div>
+    <div class="submit-row">
+        <button class="btn" onclick="SaveResume()">保存修改</button>
+    </div>
+</div>
+        </div>
+
+        <div id="panel-records" class="panel">
+            <div class="records-top">
+                <button id="start-interview-btn" class="btn" onclick="StartInterview()">开始模拟面试</button>
+            </div>
+            <p>{{if_generating}}</p>
+            <div class="record-list">
+                {{record_list | safe}}
+            </div>
+        </div>
+
+        <div id="panel-profile" class="panel">
+            <div class="profile-container">
+                <div class="profile-account">账号：{{user_name}}</div>
+                
+                <div class="form-group full-width" style="margin-bottom: 15px;">
+                    <label>修改密码</label>
+                    <input type="password" id="raw_password" placeholder="请输入原始密码">
+                    <input type="password" id="edit_password" placeholder="请输入新密码">
+                </div>
+                
+                <div class="form-group full-width">
+                    <label>确认修改密码</label>
+                    <input type="password" id="confirm_edit_password" placeholder="请再次输入新密码">
+                </div>
+                
+                <div class="profile-actions">
+                    <button class="btn" onclick="Edit_password()">确认修改密码</button>
+                    <button class="btn" style="background-color: #ff7f7f;" onclick="Logout()">退出登录</button> </div>
+            </div>
+        </div>
+
+    </div>
+    <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-content">
+        <div class="spinner"></div>
+        <div class="loading-text">正在解析简历，请稍候...</div>
+    </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // 1. 隐藏所有面板
+            document.querySelectorAll('.panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            // 2. 移除所有导航激活状态
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('active');
+            });
+            
+            // 3. 激活对应面板
+            document.getElementById('panel-' + tabName).classList.add('active');
+            // 4. 激活对应导航
+            // 利用事件触发对象来修改高亮，或者通过匹配下标
+            const navItems = document.querySelectorAll('.nav-item');
+            if(tabName === 'resume') navItems[0].classList.add('active');
+            if(tabName === 'records') navItems[1].classList.add('active');
+            if(tabName === 'profile') navItems[2].classList.add('active');
+        }
+        function Logout(){
+            if (confirm("确定要退出登录吗？")) {
+        
+        // 向 Flask 后端发送异步 POST 请求
+        fetch('{{url_for("api_logout")}}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // 后端清除 session 成功后，前端控制整个网页重定向跳转回登录页
+                window.location.href = '{{url_for("login")}}';
+            } else {
+                alert("退出异常：" + data.message);
+            }
+        })
+        .catch(err => {
+            alert("网络连接异常，退出失败");
+        });
+    }
+        }
+        function force_Logout(){
+            fetch('{{url_for("api_logout")}}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // 后端清除 session 成功后，前端控制整个网页重定向跳转回登录页
+                window.location.href = '{{url_for("login")}}';
+            } else {
+                alert("退出异常：" + data.message);
+            }
+        })
+        .catch(err => {
+            alert("网络连接异常，退出失败");
+        });
+    }
+        function Edit_password(){
+            const raw_password_Input = document.getElementById("raw_password").value.trim();
+            const edit_password_Input = document.getElementById("edit_password").value.trim();
+            const confirm_edit_password_Input = document.getElementById("confirm_edit_password").value.trim();
+            fetch('{{url_for("api_edit_password")}}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // 声明传输格式为 JSON
+                },
+                body: JSON.stringify({
+                    raw_password: raw_password_Input,
+                    edit_password: edit_password_Input,
+                    confirm_edit_password: confirm_edit_password_Input
+                })
+            })
+            .then(response => {
+                // 将响应转化为 JSON 对象，同时保留状态码供下一步判断
+                return response.json().then(data => ({ status: response.status, body: data }));
+            })
+            .then(res => {
+                if (res.status === 200 && res.body.status === 'success') {
+                    alert("修改成功");
+                    force_Logout();
+                } else {
+                    // 登录失败，展示后端返回的错误原因
+                    alert(res.body.message);
+                }
+            })
+            .catch(err => {
+                errorBox.innerText = "网络连接异常，请稍后再试";
+                errorBox.style.display = "block";
+                resetButton();
+            });
+        }
+        function triggerFileInput() {
+    document.getElementById('resume-file-input').click();
+}
+
+// 2. 当用户在弹出的窗口中选中文件后，自动触发该函数进行异步上传
+function handleFileUpload() {
+    const fileInput = document.getElementById('resume-file-input');
+    const file = fileInput.files[0]; // 获取用户选中的第一个文件
+    
+    if (!file) return;
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.add('active');
+    // 创建一个 FormData 对象，它是专门用来打包二进制文件数据的容器
+    const formData = new FormData();
+    formData.append('resume', file); // 键名 'resume' 必须与 Flask 后端接收的名称完全一致
+
+
+    // 使用 Fetch 发送异步 POST 请求给 Flask 后端
+    fetch('{{url_for("api_upload_resume")}}', {
+        method: 'POST',
+        body: formData // 直接将打包好的表单丢进去
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert("简历上传成功！确认后将刷新页面并自动填充下面的内容");
+            window.location.reload(); // 上传成功后刷新页面以更新界面状态
+        } else {
+            alert("上传失败：" + data.message);
+            overlay.classList.remove('active');
+        }
+    })
+    .catch(err => {
+        alert("网络连接异常，上传失败");
+        overlay.classList.remove('active');
+    })
+    .finally(() => {
+        // 重置 input，防止用户删除失败后，无法再次选中同一个文件上传
+        fileInput.value = ''; 
+    })}
+    function SaveResume(){
+        const resumeList=[document.getElementById("姓名").value.trim(),
+            document.getElementById("性别").value.trim(),
+            document.getElementById("联系电话").value.trim(),
+            document.getElementById("电子邮箱").value.trim(),
+            document.getElementById("毕业院校").value.trim(),
+            document.getElementById("专业").value.trim(),
+            document.getElementById("学历").value.trim(),
+            document.getElementById("毕业年份").value ? parseInt(document.getElementById("毕业年份").value) : "",
+            document.getElementById("意向岗位").value.trim(),
+            document.getElementById("个人主页").value.trim(),
+            document.getElementById("主修课程及成绩").value.trim(),
+            document.getElementById("掌握技能").value.trim(),
+            document.getElementById("核心项目经历").value.trim(),
+            document.getElementById("自我评价").value.trim(),
+            document.getElementById("获奖荣誉").value.trim(),
+            document.getElementById("其他").value.trim()
+        ]
+        fetch('{{url_for("api_upload_resume_list")}}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ resume_list: resumeList })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert("简历保存成功！");
+        } else {
+            alert("保存失败：" + data.message);
+        }
+    })
+    .catch(err => {
+        alert("网络连接异常，保存失败");
+    });
+
+    }
+    function StartInterview() {
+    // 1. 第一重锁：锁死按钮本身，防止原地连击
+    const btn = document.getElementById('start-interview-btn');
+    if (btn) {
+        btn.innerText = "正在准备";
+        btn.disabled = true;
+    }
+
+    // 2. 第二重锁：召唤全屏遮罩层，防止用户在等待期间手痒去点上面的“我的简历”等导航栏
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        // 动态把遮罩层的提示文字从“正在解析简历”修改为面试场景文字
+        const loadingText = overlay.querySelector('.loading-text');
+        if (loadingText) {
+            loadingText.innerText = "正在准备问题，请稍候...";
+        }
+        overlay.classList.add('active');
+    }
+
+    // 3. 页面重定向，向 Flask 后端进军
+    window.location.href = '{{url_for("interview")}}';
+}
+    </script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI模拟面试</title>
+    <style>
+        /* 全局样式与无色背景 */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #333;
+            text-align: center; /* 确保整体居中对齐 */
+        }
+
+        /* 主体内容容器 */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* 顶部标题与介绍 */
+        .hero-title {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        /* 浅蓝色大按钮 */
+        .btn-start {
+            display: inline-block;
+            background-color: #87CEFA; /* 浅蓝色 */
+            color: #fff;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-decoration: none;
+            padding: 15px 50px;
+            border-radius: 8px;
+            margin-bottom: 60px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-start:hover {
+            background-color: #5bbdf8;
+        }
+
+        /* 三段图文介绍：保持电脑与手机布局一致（按比例缩放，不换行） */
+        .feature-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            gap: 5%; /* 使用百分比间距 */
+        }
+
+        /* 控制图片在右侧的修饰类 */
+        .feature-row.reverse {
+            flex-direction: row-reverse;
+        }
+
+        .feature-img {
+            width: 45%;
+            aspect-ratio: 4 / 3; /* 严格固定 4:3 比例 */
+            background-color: #e0e0e0; /* 占位背景色 */
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .feature-text {
+            width: 45%;
+            text-align: left; /* 内部文字左对齐以保证阅读体验，但整体块处于居中流内 */
+        }
+
+        .feature-text h3 {
+            margin-top: 0;
+        }
+
+        .feature-text p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* 底部浅灰色区域 */
+        .footer {
+            background-color: #f5f5f5; /* 浅灰色 */
+            padding: 30px 20px;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between; /* 左右两端对齐 */
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            gap: 12px;
+        }
+
+        .footer-links a {
+            color: #555;
+            text-decoration: none;
+            font-size: 0.95em;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-tips {
+            text-align: right;
+            color: #888;
+            font-size: 0.9em;
+            line-height: 1.8;
+        }
+
+        /* 针对手机端进行字体大小微调，但不改变左右布局结构 */
+        @media (max-width: 600px) {
+            .hero-title { font-size: 1.8em; }
+            .hero-subtitle { font-size: 1em; }
+            .btn-start { padding: 12px 30px; font-size: 1.1em; }
+            .feature-text h3 { font-size: 1.1em; }
+            .feature-text p { font-size: 0.85em; }
+            .footer-links a { font-size: 0.85em; }
+            .footer-tips { font-size: 0.8em; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="hero-title">AI模拟面试</div>
+        <div class="hero-subtitle">智能解析简历，海量岗位题库，为您提供沉浸式的真实技术面试体验。</div>
+        
+        <a href='{{url_for("manage")}}' class="btn-start">立即开始</a>
+
+        <div class="feature-row">
+            <img src="{{url_for('static_file', file_name='img1.jpg')}}" alt="简历解析图" class="feature-img">
+            <div class="feature-text">
+                <h3>简历解析</h3>
+                <p>系统能够快速提取您的个人信息与技术栈，精准定位您的专业能力，为接下来的面试打下坚实基础。</p>
+            </div>
+        </div>
+
+        <div class="feature-row reverse">
+            <img src="{{url_for('static_file', file_name='img2.jpg')}}" alt="对话模拟图" class="feature-img">
+            <div class="feature-text">
+                <h3>面试模拟</h3>
+                <p>通过自然语言处理技术，AI面试官将对您进行步步深入的专业拷问，还原最真实的面试高压环境。</p>
+            </div>
+        </div>
+
+        <div class="feature-row">
+            <img src="{{url_for('static_file', file_name='img3.jpg')}}" alt="评分反馈图" class="feature-img">
+            <div class="feature-text">
+                <h3>能力评估</h3>
+                <p>面试结束后，您将获得一份多维度的能力评估报告，系统会根据您的表现给出极具参考价值的提升建议。</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="https://github.com/Rikka-666/leeds-ai-interview">前往Github库</a>
+                <a href="{{url_for('static_file', file_name='设计文档.pdf')}}">下载项目设计文档</a>
+                <a href="{{url_for('static_file', file_name='demo.mp4')}}">下载演示视频</a>
+            </div>
+            <div class="footer-tips">
+                <div>这是学生参加西南交通大学-利兹学院的比赛的作品，</div>
+                <div>其中所有题库以及系统所给的评价都是模拟的，不代表任何的真实情况和数据，</div>
+                <div>也请您不要输入自己其他平台常用的账户名和密码
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

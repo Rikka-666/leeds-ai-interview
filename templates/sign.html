@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册 - AI模拟面试</title>
+    <style>
+        /* 全局基础样式（与主页及管理页严格一致） */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #555;
+            font-size: 1em;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* 撑满屏幕高度以实现垂直居中 */
+        }
+
+        /* 注册卡片容器（电脑端固定宽度居中，手机端自适应撑满） */
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px 30px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        /* 顶部标题 */
+        .login-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .login-subtitle {
+            font-size: 1em;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        /* 表单区域 */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            margin-bottom: 6px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .form-group input {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 1em;
+            font-family: inherit;
+            color: #555;
+            box-sizing: border-box;
+            width: 100%;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #87CEFA;
+            outline: none;
+        }
+
+        /* 错误提示区域（默认隐藏） */
+        .error-message {
+            display: none;
+            color: #ff4d4d;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            text-align: left;
+            background-color: #fff2f2;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #ffcccc;
+        }
+
+        /* 浅蓝色大按钮 */
+        .btn-login {
+            width: 100%;
+            height: 45px;
+            background-color: #87CEFA;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em; /* 字体大小与主页 p 标签一致 */
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            background-color: #5bbdf8;
+        }
+
+        /* 手机端微调 */
+        @media (max-width: 480px) {
+            .login-container {
+                border: none;
+                box-shadow: none;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="login-title">AI模拟面试</div>
+        <div class="login-subtitle">请注册一个新账号</div>
+
+        <div id="error-box" class="error-message"></div>
+
+        <div class="form-group">
+            <label for="username">账号</label>
+            <input type="text" id="username" placeholder="请输入您的账号名">
+        </div>
+
+        <div class="form-group">
+            <label for="password">密码</label>
+            <input type="password" id="password" placeholder="请输入您的密码">
+        </div>
+        <div class="form-group">
+            <label for="password">请确认密码</label>
+            <input type="password" id="confirm_password" placeholder="请再次确认您的密码">
+        </div>
+
+        <button class="btn-login" id="login-btn" onclick="handleLogin()">注 册</button>
+    </div>
+
+    <script>
+        function handleLogin() {
+            const usernameInput = document.getElementById('username').value.trim();
+            const passwordInput = document.getElementById('password').value.trim();
+            const confirm_passwordInput = document.getElementById('confirm_password').value.trim();
+            const errorBox = document.getElementById('error-box');
+            const loginBtn = document.getElementById('login-btn');
+
+            // 1. 前端基础验证
+            if (!usernameInput || !passwordInput) {
+                errorBox.innerText = "账号和密码不能为空！";
+                errorBox.style.display = "block";
+                return;
+            }
+
+            // 2. 改变按钮状态，防止重复点击
+            loginBtn.innerText = "正在注册...";
+            loginBtn.disabled = true;
+            errorBox.style.display = "none";
+
+            // 3. 使用 Fetch 发送异步 POST 请求给 Flask 后端
+            fetch('{{url_for("api_sign")}}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // 声明传输格式为 JSON
+                },
+                body: JSON.stringify({
+                    username: usernameInput,
+                    password: passwordInput,
+                    confirm_password: confirm_passwordInput
+                })
+            })
+            .then(response => {
+                // 将响应转化为 JSON 对象，同时保留状态码供下一步判断
+                return response.json().then(data => ({ status: response.status, body: data }));
+            })
+            .then(res => {
+                if (res.status === 200 && res.body.status === 'success') {
+                    // 直接在前端控制页面整体跳转到注册
+                    window.location.href = '{{url_for("login")}}';
+                } else {
+                    // 注册失败，展示后端返回的错误原因
+                    errorBox.innerText = res.body.message || "注册失败，请检查账号密码";
+                    errorBox.style.display = "block";
+                    resetButton();
+                }
+            })
+            .catch(err => {
+                errorBox.innerText = "网络连接异常，请稍后再试";
+                errorBox.style.display = "block";
+                resetButton();
+            });
+
+            // 恢复按钮状态的辅助函数
+            function resetButton() {
+                loginBtn.innerText = "注 册";
+                loginBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

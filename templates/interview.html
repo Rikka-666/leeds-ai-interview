@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI模拟面试 - 进行中</title>
+    <style>
+        /* 全局基础样式（保持高度一致） */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafc; /* 稍微给一点极浅的背景色区分主体 */
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #555;
+            font-size: 1em;
+            line-height: 1.6;
+        }
+
+        /* 核心 Frame 容器 (电脑 60%，手机 100%) */
+        .interview-container {
+            width: 60%;
+            margin: 40px auto;
+            padding: 40px;
+            box-sizing: border-box;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            position: relative; /* 为内部加载遮罩提供定位基准 */
+        }
+
+        /* 顶部标题栏 */
+        .header-title {
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        /* 面试题目展示区 */
+        .question-box {
+            font-size: 1.2em;
+            color: #222;
+            font-weight: bold;
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #f0f8ff; /* 极浅的天蓝色背景，突出问题 */
+            border-left: 5px solid #87CEFA;
+            border-radius: 4px;
+            line-height: 1.8;
+            min-height: 80px; /* 保证高度即使题目很短也不会显得太窄 */
+        }
+
+        /* 文本输入区 */
+        .answer-box {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .answer-box textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1.05em;
+            font-family: inherit;
+            color: #333;
+            box-sizing: border-box;
+            resize: vertical; /* 允许用户上下拉伸拉伸高度 */
+            transition: border-color 0.3s;
+        }
+
+        .answer-box textarea:focus {
+            border-color: #87CEFA;
+            outline: none;
+            box-shadow: 0 0 5px rgba(135, 206, 250, 0.3);
+        }
+
+        /* 底部按钮行 */
+        .submit-row {
+            text-align: center;
+        }
+
+        /* 天蓝色大按钮 */
+        .btn-submit {
+            background-color: #87CEFA;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            padding: 15px 50px;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-submit:hover {
+            background-color: #5bbdf8;
+        }
+
+        .btn-submit:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* ================= 局部加载遮罩层样式 ================= */
+        /* 与简历上传的全屏遮罩不同，这里使用局部遮罩只挡住面试容器 */
+        .loading-overlay {
+            display: none; /* 默认隐藏 */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.85); /* 半透明白色背景 */
+            z-index: 10;
+            border-radius: 12px;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #87CEFA;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.1em;
+            color: #555;
+            font-weight: bold;
+        }
+
+        /* 移动端适配 (手机占满屏幕) */
+        @media (max-width: 768px) {
+            body { background-color: #fff; } /* 手机端取消大背景色，直接融为一体 */
+            .interview-container { 
+                width: 100%; 
+                margin: 0; 
+                padding: 20px; 
+                border-radius: 0; 
+                box-shadow: none; 
+            }
+            .header-title { font-size: 1.5em; margin-bottom: 20px; }
+            .question-box { font-size: 1.1em; padding: 15px; }
+            .answer-box textarea { min-height: 150px; }
+            .btn-submit { width: 100%; padding: 12px 0; }
+        }
+        /* 面试计时器样式 */
+        .timer-display {
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ff4d4d; /* 使用红色字体增加一点高压紧张感 */
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="interview-container">
+        
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text">正在评估你的回答并准备下一个问题，请稍候...</div>
+        </div>
+
+        <div class="header-title">正在进行模拟面试</div>
+        <div id="timer-display" class="timer-display">本题已用时：00:00</div>
+        <div id="question-text" class="question-box">
+            {{question}}
+        </div>
+
+        <div class="answer-box">
+            <textarea id="answer-input" placeholder="请在此输入您的回答..."></textarea>
+        </div>
+
+        <div class="submit-row">
+            <button id="submit-btn" class="btn-submit" onclick="submitAnswer()">确认回答并提交</button>
+        </div>
+
+    </div>
+
+    <script>
+        let startTime;
+        let timerInterval;
+
+        function startTimer() {
+            startTime = Date.now();
+            const timerElement = document.getElementById('timer-display');
+            
+            // 每次调用时先清除旧的计时器
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            // 每秒更新一次时间显示
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                const seconds = String(elapsed % 60).padStart(2, '0');
+                timerElement.innerText = `本题已用时：${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        // 页面加载完成后立即启动计时器
+        window.onload = startTimer;
+        function submitAnswer() {
+            const answerInput = document.getElementById('answer-input');
+            const answerText = answerInput.value.trim();
+            const overlay = document.getElementById('loading-overlay');
+            const submitBtn = document.getElementById('submit-btn');
+            const questionBox = document.getElementById('question-text');
+
+            // 1. 基础验证
+            if (!answerText) {
+                alert("回答不能为空，请先输入内容！");
+                answerInput.focus();
+                return;
+            }
+
+            // 2. 锁定页面状态，显示遮罩，禁用按钮
+            overlay.classList.add('active');
+            submitBtn.disabled = true;
+
+            // 3. 发送异步请求给 Flask 后端
+            fetch('{{url_for("api_submit_answer")}}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    answer: answerText 
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("服务器响应异常");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    // 4. 成功获取下一题，更新题目区域
+                    questionBox.innerText = data.next_question;
+                    // 清空输入框，准备下一次作答
+                    answerInput.value = '';
+                    startTimer();
+                } else if (data.status === 'end') {
+                    alert("面试已结束，您可以在面试历史页面查看回答及评价");
+                    window.location.href="{{url_for('manage')}}";
+                }
+                else {
+                    alert("发生错误：" + data.message);
+                }
+            })
+            .catch(err => {
+                alert("网络连接异常，提交失败请重试。");
+            })
+            .finally(() => {
+                // 5. 无论成功失败，解除锁定状态
+                overlay.classList.remove('active');
+                submitBtn.disabled = false;
+                // 让输入框重新获得焦点，方便用户直接打字
+                answerInput.focus();
+            });
+        }
+    </script>
+
+</body>
+</html>
