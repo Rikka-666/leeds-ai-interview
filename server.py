@@ -12,7 +12,13 @@ import pickle
 import ast
 import random
 import threading
-#requirements:flask,openai,markitdown[pptx,docx,xlsx,xls,pdf]
+import waitress
+import logging
+#requirements:flask,openai,markitdown[pptx,docx,xlsx,xls,pdf],waitress
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(asctime)s] %(levelname)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S')
 with open("api_key.txt") as api_key_file:
     API_KEY=api_key_file.read()
 AI_BASE_URL="https://api.deepseek.com"
@@ -25,6 +31,12 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 #session["user_name"] 原始字符串存储的用户名 注意和保存时用的b64格式区分开
 dialogue={}
 generating_report={}#正在生成的报告
+@app.after_request
+def log_access(response):
+    # 获取用户的真实IP
+    user_ip = flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr)
+    app.logger.info(f"{user_ip} - {flask.request.method} {flask.request.path} {response.status_code}")
+    return response
 def login_required(f):#需要登录的页面的前置钩子
     @wraps(f)
     def decorated_func(*args,**kwargs):
@@ -325,4 +337,4 @@ def api_submit_answer():
     return flask.jsonify({"status": "success","next_question":next_question_dict["next_question"]}), 200
 
 
-app.run(port=81,debug=True,host="127.0.0.1")
+waitress.serve(app,port=81,host="127.0.0.1",threads=4)
