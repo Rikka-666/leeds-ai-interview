@@ -1,1 +1,1 @@
-flask,openai,markitdown[pptx,docx,xlsx,xls,pdf]
+flask,openai,markitdown[pptx,docx,xlsx,xls,pdf],Microsoft Visual C++ Redistributable
