@@ -34,8 +34,13 @@ generating_report={}#正在生成的报告
 @app.after_request
 def log_access(response):
     # 获取用户的真实IP
-    user_ip = flask.request.headers.get('X-Forwarded-For', flask.request.remote_addr)
-    app.logger.info(f"{user_ip} - {flask.request.method} {flask.request.path} {response.status_code}")
+    user_ip = flask.request.headers.get('X-Forwarded-For')
+    if user_ip:
+        # 取第一个 IP（最原始客户端）
+        real_ip=user_ip.split(',')[0].strip()  
+    # 备选：X-Real-IP
+    real_ip=flask.request.headers.get('X-Real-IP')
+    app.logger.info(f"{real_ip} - {flask.request.method} {flask.request.path} {response.status_code}")
     return response
 def login_required(f):#需要登录的页面的前置钩子
     @wraps(f)
