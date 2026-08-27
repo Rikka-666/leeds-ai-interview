@@ -98,3 +98,4 @@ pip install waitress <br>
 密钥 <br>
 5. 双击运行server.py <br>
 6. 访问http://127.0.0.1:81/<br>
+7. 已有一个用户名为：1，密码：1
