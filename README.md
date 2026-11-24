@@ -78,13 +78,7 @@ Gemini 生成，其他的包括Javascript代码，后台web服务器的python代
 API key 没有存储到服务端主文件server.py中，而是保存在相同目录的api_key.txt文
 件中，运行时服务端会从这个文件中读取API key并保存在内存中。 <br> 
 api_key.txt 没有被上传到Github仓库。 <br>
-## 网站部署情况
-这个项目的网站被部署到个人的云服务器上（阿里云成都，2核2G，Windows 
-server2019 图形界面版），通过nginx反代理到/ai_interview路径下，访问网站的完整地址
-是：<br>https://8.137.182.19/ai_interview/<br>同时可以从这个页面上跳转到Github仓库，下
-载演示视频和这个设计文档。 <br>
-如果您在访问网站时出现问题，或者在使用时遇到了非重启服务端不可的问题，非常抱
-歉，您可以尝试本地部署。 <br>
+
 本地部署步骤： <br>
 1. 要求Windows10，11，Windows server2019,2022 或 2025，Python 安装 3.12 或更
 高版本。 <br>
